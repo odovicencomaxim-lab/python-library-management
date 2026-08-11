@@ -1,0 +1,121 @@
+class dipendente():
+    def __init__(self,id_emp,nome,cognome,stipendio_base):
+        self.id_emp = id_emp
+        self.nome = nome
+        self.cognome = cognome
+        self.stipendio_base = stipendio_base
+    def calcola_stipendio(self):
+        return self.stipendio_base
+class sviluppatore(dipendente):
+    def __init__(self, id_emp, nome, cognome, stipendio_base,bonus_progetto):
+        super().__init__(id_emp, nome, cognome, stipendio_base,)
+        self.bonus_progetto = bonus_progetto
+    def calcola_stipendio(self):
+        return super().calcola_stipendio() + self.bonus_progetto
+class venditore(dipendente):
+    def __init__(self, id_emp, nome, cognome, stipendio_base,vendite_totali,percentuale_provvigione):
+        super().__init__(id_emp, nome, cognome, stipendio_base)
+        self.vendite_totali = vendite_totali
+        self.percentuale_provvigione = percentuale_provvigione
+    def calcola_stipendio(self):
+        return super().calcola_stipendio() + (self.vendite_totali * (self.percentuale_provvigione / 100))
+
+tabbella_dipendenti = {
+    "E01" : dipendente("E01", "Luca", "Rossi", 1300),
+    "E02" : sviluppatore("E02", "Mario", "Verdi", 1400, 500),
+    "E03" : venditore("E03", "Francesco", "Giovanotti", 1350, 3400, 12.5),
+    "E04" : venditore("E04", "Giuliano", "Fransischi", 1100, 7600, 10)
+}
+print("Scegli Azione")
+while True:
+    try:       
+        s = int(input("""
+0) Esci
+1) Visualizza Lista Dipendenti e Stipendi Netti
+2) Aggiorna Vendite (per Venditori) 
+3) Calcola Costo Totale Azienda
+->  """))
+        if s not in [0,1,2,3]:
+            print("Errore: Devi scegliere un numero tra 0 e 3\n")
+            continue
+        if s == 0:
+            print("Sto uscendo dal programma!")
+            exit()
+        elif s == 1:
+            for id,persona in tabbella_dipendenti.items():               
+                if type(persona) == venditore:
+                    print(f"""TIPO: VENDITORE
+ID: {id}
+nome: {persona.nome}
+cognome: {persona.cognome}
+stipendio base: {persona.stipendio_base}€
+vendite totali: {persona.vendite_totali}€
+percentuale_provvigione: {persona.percentuale_provvigione}% \n""")
+                elif type(persona) == sviluppatore:
+                    print(f"""TIPO: SVILUPPATORE
+ID: {id}
+nome: {persona.nome}
+cognome: {persona.cognome}
+stipendio base: {persona.stipendio_base}€
+Bonus proggetto: {persona.bonus_progetto}€ \n""")
+                elif type(persona) == dipendente:
+                    print(f"""TIPO: DIPENDENTE
+ID: {id}
+nome: {persona.nome}
+cognome: {persona.cognome}
+stipendio base: {persona.stipendio_base}€ \n""")
+
+        elif s == 2:
+            lista_venditori = {}
+            for id, persona in tabbella_dipendenti.items():
+                if type(persona) == venditore:
+                    lista_venditori[id] = persona
+            if lista_venditori:
+                print("LISTA VENDITORI:")
+                for id,persona in lista_venditori.items():
+                    print(f"ID: {id} | Nome: {persona.nome} {persona.cognome}")
+                uscita = False
+                while True:
+                        if uscita:
+                            break                    
+                        id_inserito = input("\nInserisci l'id del venditore: ")
+                        id_trovato = False
+                        for id,persona in lista_venditori.items():
+                            if id_inserito == id:
+                                id_trovato = True
+                                while True:                                     
+                                    try:
+                                        aggiunta = float(input("aggiungi di quanto aumentano le sue vendite (€): "))
+                                        persona.vendite_totali += aggiunta
+                                        uscita = True
+                                        break
+                                    except ValueError:
+                                        print("Errore: devi inserire in numero")
+                        if id_trovato == False:
+                            print("Errore: Id venditore non trovato!")                                     
+            else:
+                print("Errore: Nessun venditore presente nell'azienda")
+                continue
+        elif s == 3:
+            tot_stipendio_dip = 0
+            tot_stipendio_ven = 0
+            tot_stipendio_svi = 0
+            for id,persona in tabbella_dipendenti.items():
+                if type(persona) == dipendente:
+                    print(f"Classe: Dipendente | id: {id} | nome: {persona.nome} {persona.cognome} | stipendio totale: {persona.calcola_stipendio()}€ ")
+                    tot_stipendio_dip += persona.stipendio_base
+                elif type(persona) == venditore:
+                    stipendio_eff = persona.calcola_stipendio()
+                    print(f"Classe: venditore | id: {id} | nome: {persona.nome} {persona.cognome} | stipendio totale: {stipendio_eff}€")
+                    tot_stipendio_ven += stipendio_eff
+                elif type(persona) == sviluppatore:
+                    stipendio_eff = persona.calcola_stipendio()
+                    print(f"Classe: sviluppatore | id: {id} | nome: {persona.nome} {persona.cognome} | stipendio totale: {stipendio_eff}€")
+                    tot_stipendio_svi += stipendio_eff
+            print("---------COSTO TOTALE PER SETTORE---------")
+            print(f"DIPENDENTI: {tot_stipendio_dip}€")
+            print(f"VENDITORI: {tot_stipendio_ven}€")
+            print(f"SVILUPPATORI: {tot_stipendio_svi}€\n")
+            print(f"COSTO TOTALE: {tot_stipendio_svi + tot_stipendio_ven + tot_stipendio_dip}€")                  
+    except ValueError:
+        print("Errore: inserire un carattere valido\n")
